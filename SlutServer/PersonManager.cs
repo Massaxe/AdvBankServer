@@ -4,12 +4,13 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace SlutServer
 {
     class PersonManager
     {
-        private static string accountFilePath = @"accounts.xml";
+        private const string accountPath = "accounts.xml";
         public static List<Person> GetAllPeople()
         {
             return new List<Person>();
@@ -36,19 +37,43 @@ namespace SlutServer
                         )
                     )
             );
-            XDocument fileDoc = XDocument.Load(accountFilePath);
+            XDocument fileDoc = XDocument.Load(accountPath);
             fileDoc.Element("people").Add(docTree);
-            fileDoc.Save(accountFilePath);
+            fileDoc.Save(accountPath);
             return "Person Added";
         }
-        public static bool IsAccount(int personId, string name)
+        public static string GetSpecifcPersonData(string personId)
         {
-            XDocument fileDoc = XDocument.Load(accountFilePath);
-            /*IEnumerable<XElement> users = (from el in fileDoc.Root.Elements("person")
-                                           where (string)el.Attribute("id") == personId.ToString()
-                                           select el);*/
-            XElement person = fileDoc.Descendants("person").
-                            SingleOrDefault(e => ((string)e.Attribute("id")) == personId.ToString());
+            string inlineData = "";
+            XDocument fileDoc = XDocument.Load(accountPath);
+            XElement person = fileDoc.Descendants("person").Single(e => ((string)e.Attribute("id") == personId));
+
+            inlineData += person.Element("name").Value;
+            inlineData += "," + person.Element("personId").Value;
+
+            IEnumerable<XElement> accounts = person.Element("accounts").Elements("account");
+            foreach (XElement xE in accounts)
+            {
+                inlineData += "," + xE.Element("account_id").Value + "-" + xE.Element("account_type").Value + "-" + xE.Element("balance").Value;
+            }
+
+            return inlineData;
+
+        }
+        public static bool IsAccount(string personId, string name)
+        {
+            XDocument fileDoc = XDocument.Load(accountPath);
+
+            XElement person;
+            try
+            {
+                person = fileDoc.Descendants("person").First(e => ((string)e.Attribute("id")) == personId);
+            }
+            catch
+            {
+                person = null;
+            }
+
             if (person != null)
                 return true;
             else

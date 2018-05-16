@@ -13,7 +13,7 @@ namespace SlutServer
         {
             return new List<Account>();
         }
-        public static Account GetSpecificAccounts(int personId, int accountId, bool allPersonAccounts)
+        public static Account GetSpecificAccount(int personId, int accountId, bool allPersonAccounts)
         {
             return new SavingsAccount(123, 1555);
         }

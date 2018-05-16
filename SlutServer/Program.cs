@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SlutServer
 {
@@ -17,9 +18,10 @@ namespace SlutServer
         {
             XMLManager xM = new XMLManager();
             SocketManager.StartListening();
-            Console.WriteLine("Hej");
-
+            Console.WriteLine("Hello World");
             
+
+
 
 
         }

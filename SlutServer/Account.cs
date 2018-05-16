@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace SlutServer
 {
-    class Account
+    abstract class Account
     {
         int ownerId;
         double balance;
+        float interest;
 
         public Account(int ownerId, double balance)
         {
