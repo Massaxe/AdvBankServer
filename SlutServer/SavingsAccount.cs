@@ -9,5 +9,7 @@ namespace SlutServer
     class SavingsAccount:Account
     {
         static float interest = 0.1f;
+        public SavingsAccount(int ownerId, double balance) : base(ownerId, balance)
+        { }
     }
 }

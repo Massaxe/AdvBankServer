@@ -10,5 +10,11 @@ namespace SlutServer
     {
         int ownerId;
         double balance;
+
+        public Account(int ownerId, double balance)
+        {
+            this.ownerId = ownerId;
+            this.balance = balance;
+        }
     }
 }

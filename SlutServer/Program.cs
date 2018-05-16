@@ -17,7 +17,11 @@ namespace SlutServer
         {
             XMLManager xM = new XMLManager();
             SocketManager.StartListening();
+            Console.WriteLine("Hej");
+
             
+
+
         }
     }
 }

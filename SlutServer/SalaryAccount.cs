@@ -9,5 +9,7 @@ namespace SlutServer
     class SalaryAccount:Account
     {
         static float interest = 0.001f;
+        public SalaryAccount(int ownerId, double balance) :base(ownerId, balance)
+        {}
     }
 }

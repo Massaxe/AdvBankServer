@@ -22,7 +22,6 @@ namespace SlutServer
             {
                 using (XmlWriter xw = XmlWriter.Create(accountFilePath))
                 {
-
                 }
                 Console.WriteLine("File does not exist");
             }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace SlutServer
 {
@@ -104,7 +105,7 @@ namespace SlutServer
             if (bytesRead > 0)
             {
                 // There  might be more data, so store the data received so far.  
-                state.sb.Append(Encoding.ASCII.GetString(
+                state.sb.Append(Encoding.UTF8.GetString(
                     state.buffer, 0, bytesRead));
 
                 // Check for end-of-file tag. If it is not there, read   
@@ -118,6 +119,14 @@ namespace SlutServer
                     /*Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
                         content.Length, content);*/
                     // Echo the data back to the client.  
+                    if(content.IndexOf("reg") > -1)
+                    {
+                        RegisterPerson(content);
+                    }
+                    else if(content.IndexOf("login") > -1)
+                    {
+                        LoginPerson(content, handler);
+                    }
                     Send(handler, content);
                 }
                 else
@@ -128,11 +137,29 @@ namespace SlutServer
                 }
             }
         }
-
+        private static void LoginPerson(string content, Socket handler)
+        {
+            string[] contentArray = content.Split(',');
+            Console.WriteLine(content);
+            foreach (string cA in contentArray)
+            {
+                Console.WriteLine(cA);
+            }
+            if (PersonManager.IsAccount(int.Parse(contentArray[0]), contentArray[1]))
+                Send(handler, "login_success");
+            else
+                Send(handler, "login_failed");
+        }
+        private static void RegisterPerson(string content)
+        {
+            string[] contentArray = content.Split(',');
+            Console.WriteLine(content);
+            PersonManager.AddPerson(int.Parse(contentArray[0]), contentArray[1]);
+        }
         private static void Send(Socket handler, String data)
         {
             // Convert the string data to byte data using ASCII encoding.  
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
 
             // Begin sending the data to the remote device.  
             handler.BeginSend(byteData, 0, byteData.Length, 0,
@@ -156,7 +183,7 @@ namespace SlutServer
                 int bytesSent = handler.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
-                handler.Shutdown(SocketShutdown.Both);
+                //handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
 
             }
