@@ -14,6 +14,7 @@ namespace SlutServer
     {
 
         // Incoming data from the client.  
+        static Socket handler;
         public static string data = null;
 
         public static void StartListening()
@@ -43,7 +44,7 @@ namespace SlutServer
                 {
                     Console.WriteLine("Waiting for a connection...");
                     // Program is suspended while waiting for an incoming connection.  
-                    Socket handler = listener.Accept();
+                    handler = listener.Accept();
                     data = null;
 
                     // An incoming connection needs to be processed.  
@@ -94,7 +95,51 @@ namespace SlutServer
             else if (content.IndexOf("init_user_data") > -1)
             {
                 Console.WriteLine("|DATA| init_user_data");
-                Send(handler, "user_data," + PersonManager.GetSpecifcPersonData(GetPersonIdFromMessage(RemoveEOM(content))));
+                UpdateUser(content);
+            }
+            else if(content.IndexOf("new_account") > -1)
+            {
+                AddAccountParser(RemoveEOM(content));
+            }
+            else if(content.IndexOf("send_money") > -1)
+            {
+                SendMoney(RemoveEOM(content));
+            }
+        }
+
+        public static void UpdateUser(string content)
+        {
+            Send(handler, "user_data," + PersonManager.GetSpecifcPersonData(GetPersonIdFromMessage(RemoveEOM(content))));
+        }
+        public static void SendMoney(string content)
+        {
+            string[] cA = content.Split(',');
+            if (AccountManager.ReduceMoney(cA[1], cA[2], cA[3]))
+            {
+                AccountManager.IncreaseMoney(cA[4], cA[3]);
+            }
+        }
+        public static void AddAccountParser(string content)
+        {
+            Console.WriteLine("content: " + content);
+            string[] contentArray = content.Split(',');
+            foreach (string cA in contentArray)
+            {
+                Console.WriteLine(cA);
+            }
+
+            string personId = contentArray[1].ToString();
+            string accountType = contentArray[3].ToString();
+            string accountId = contentArray[4].ToString();
+            string initBalance = contentArray[2].ToString();
+
+            if(AccountManager.OpenAccount(personId, accountType, accountId, initBalance))
+            {
+                UpdateUser(content);
+            }
+            else
+            {
+                Console.WriteLine("Something went wrong account creation.");
             }
         }
         public static string GetPersonIdFromMessage(string content)

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace SlutServer
 {
     class AccountManager
     {
-        string accountFilePath = @"accounts.xml";
+        private const string accountPath = "accounts.xml";
         public static List<Account> GetAllAccounts(int personId)
         {
             return new List<Account>();
@@ -22,10 +23,92 @@ namespace SlutServer
             return new SavingsAccount(123, 1556);
         }
 
-        public static string OpenAccount(int personId, int accountType)
+        public static bool OpenAccount(string personId, string accountType, string accountId, string initBalance)
         {
-            return "failed";
+            try
+            {
+                XElement docTree = new XElement(
+                    new XElement("account",
+                                new XAttribute("id", accountId),
+                                new XElement("account_id", accountId),
+                                new XElement("account_type", accountType),
+                                new XElement("balance", initBalance))
+            );
+                XDocument fileDoc = XDocument.Load(accountPath);
+
+                XElement person = fileDoc.Descendants("person").Single(e => ((string)e.Attribute("id") == personId));
+                person.Element("accounts").Add(docTree);
+                fileDoc.Save(accountPath);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
+
+        public static bool IncreaseMoney(string personId, string amount)
+        {
+            Console.WriteLine(personId);
+            Console.WriteLine(amount);
+            try
+            {
+                XDocument fileDoc = XDocument.Load(accountPath);
+                XElement person = fileDoc.Descendants("person").Single(e => ((string)e.Attribute("id") == personId));
+                XElement accounts = person.Element("accounts");
+                XElement account = accounts.Elements("account").Single(e => (string)e.Attribute("id") == "0");
+
+                double startBalance = double.Parse(account.Element("balance").Value);
+
+                double endBalance = startBalance + double.Parse(amount);
+
+                account.Element("balance").Value = endBalance.ToString();
+
+                fileDoc.Save(accountPath);
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
+        public static bool ReduceMoney(string personId, string accountId, string amount)
+        {
+            try
+            {
+                XDocument fileDoc = XDocument.Load(accountPath);
+                XElement person = fileDoc.Descendants("person").Single(e => ((string)e.Attribute("id") == personId));
+                XElement accounts = person.Element("accounts");
+                XElement account = accounts.Elements("account").Single(e => (string)e.Attribute("id") == accountId);
+
+                double startBalance = double.Parse(account.Element("balance").Value);
+
+                
+
+                double endBalance = startBalance - double.Parse(amount);
+
+                if (endBalance < 1)
+                {
+                    return false;
+                }
+
+                account.Element("balance").Value = endBalance.ToString();
+
+                fileDoc.Save(accountPath);
+
+                return true;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
         public static string RemoveAccount(int personId, int accountId)
         {
             return "Failed";
