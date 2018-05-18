@@ -34,7 +34,7 @@ namespace SlutServer
                 listener.Bind(localEndPoint);
                 listener.Listen(10);
 
-                // Börja lyssna
+                //Börja lyssna
                 while (true)
                 {
                     Console.WriteLine("Waiting for a connection...");
@@ -129,10 +129,12 @@ namespace SlutServer
 
         public static void UpdateUser(string content)
         {
+            //Skicka data som exempelvis dess konton till användare.
             Send(handler, "user_data," + PersonManager.GetSpecifcPersonData(GetPersonIdFromMessage(RemoveEOM(content))));
         }
         public static void SendMoney(string content)
         {
+            //Skicka pengar.
             string[] cA = content.Split(',');
             if (AccountManager.ReduceMoney(cA[1], cA[2], cA[3]))
             {
@@ -141,7 +143,7 @@ namespace SlutServer
         }
         public static void AddAccountParser(string content)
         {
-            Console.WriteLine("content: " + content);
+            //Sortera all info från inkommande string.
             string[] contentArray = content.Split(',');
             foreach (string cA in contentArray)
             {
@@ -153,6 +155,7 @@ namespace SlutServer
             string accountId = contentArray[4].ToString();
             string initBalance = contentArray[2].ToString();
 
+            //Om skapatkonto, uppdatera användare med info.
             if(AccountManager.OpenAccount(personId, accountType, accountId, initBalance))
             {
                 UpdateUser(content);
@@ -162,15 +165,18 @@ namespace SlutServer
                 Console.WriteLine("Something went wrong account creation.");
             }
         }
+        //Eftersom att personens id alltid är det andra elementet i den delade stringen skapade jag denna metod för att simplifera.
         public static string GetPersonIdFromMessage(string content)
         {
             string[] contentArray = content.Split(',');
             return contentArray[1];
         }
+        //Använder [<EOM>] som slut på meddelande "END OF MESSAGE" vilket behövs tas bort för att inte förvirra information.
         public static string RemoveEOM(string content)
         {
             return content.Replace("<EOM>", "");
         }
+        //Kolla om användaren finns och om den är admin.
         private static void LoginPerson(string content, Socket handler)
         {
             string[] contentArray = content.Split(',');
@@ -193,6 +199,7 @@ namespace SlutServer
             string[] contentArray = content.Split(',');
             PersonManager.AddPerson(int.Parse(contentArray[0]), contentArray[1]);
         }
+        //Skicka data till klienten.
         private static void Send(Socket handler, String data)
         {
             byte[] msg = Encoding.UTF8.GetBytes(data);

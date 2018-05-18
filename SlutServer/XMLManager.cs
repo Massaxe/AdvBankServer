@@ -12,6 +12,10 @@ namespace SlutServer
     {
 
         string accountFilePath = @"accounts.xml";
+        /*
+         * Construktor för att skapa document direkt vid instans.
+         * Kollar om filen redan existerar. Om inte skapa filen.
+         */
         public XMLManager()
         {
             CreateXMLDocument();
@@ -20,9 +24,7 @@ namespace SlutServer
         {
             if (!File.Exists(accountFilePath))
             {
-                using (XmlWriter xw = XmlWriter.Create(accountFilePath))
-                {
-                }
+                using (XmlWriter xw = XmlWriter.Create(accountFilePath)){}
                 Console.WriteLine("File does not exist");
             }
             else

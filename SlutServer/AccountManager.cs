@@ -10,19 +10,24 @@ namespace SlutServer
     class AccountManager
     {
         private const string accountPath = "accounts.xml";
+
+        //EJ KLAR
         public static List<Account> GetAllAccounts(int personId)
         {
             return new List<Account>();
         }
+        //EJ KLAR
         public static Account GetSpecificAccount(int personId, int accountId, bool allPersonAccounts)
         {
             return new SavingsAccount(123, 1555);
         }
+        //EJ KLAR
         public static Account GetSpecificAccounts(int personId)
         {
             return new SavingsAccount(123, 1556);
         }
 
+        //Skapa konto med info från paramterar som sorteras i SocketManger.
         public static bool OpenAccount(string personId, string accountType, string accountId, string initBalance)
         {
             try
@@ -47,7 +52,8 @@ namespace SlutServer
                 return false;
             }
         }
-
+        //Efter att pegnar har tagits bort från konto som skickade pengar läggs de till i denna metod. 
+        //Betyder att om pengarna inte kundes tas bort, skickas de inte. Gör så att pengar inte kan råka skapas.
         public static bool IncreaseMoney(string personId, string amount)
         {
             Console.WriteLine(personId);
@@ -75,7 +81,7 @@ namespace SlutServer
                 return false;
             }
         }
-
+        //Hämta account med parametrar
         private static XElement GetAccount(string accountId, string personId, XDocument fileDoc)
         {
             XElement person = fileDoc.Descendants("person").Single(e => ((string)e.Attribute("id") == personId));
@@ -83,7 +89,8 @@ namespace SlutServer
             XElement account = accounts.Elements("account").Single(e => (string)e.Attribute("id") == accountId);
             return account;
         }
-
+        //Efter att pegnar har tagits bort från konto som skickade pengar läggs de till i denna metod. 
+        //Betyder att om pengarna inte kundes tas bort, skickas de inte. Gör så att pengar inte kan råka skapas.
         public static bool ReduceMoney(string personId, string accountId, string amount)
         {
             try
@@ -121,13 +128,12 @@ namespace SlutServer
             }
         }
 
+
+        //Ta bort konto. Returns bool om lyckades. 
         public static bool RemoveAccount(string personId, string accountId)
         {
             try
             {
-
-
-
                 XDocument fileDoc = XDocument.Load(accountPath);
                 XElement account = GetAccount(accountId, personId, fileDoc);
                 account.Remove();

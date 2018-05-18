@@ -16,9 +16,11 @@ namespace SlutServer
     {
         static void Main(string[] args)
         {
+            /*Starta programmet med att initiera en instans av XMLManager vilket har skapandet av ett XML document i sin konstruktor.
+             *Sedan att använda sig av StartListening() för att vänta på inkommande anslutningar från klienten.
+             */
             XMLManager xM = new XMLManager();
             SocketManager.StartListening();
-            Console.WriteLine("Hello World");
             
 
 
