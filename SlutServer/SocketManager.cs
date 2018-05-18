@@ -105,6 +105,28 @@ namespace SlutServer
             {
                 SendMoney(RemoveEOM(content));
             }
+            else if(content.IndexOf("remove_account") > -1)
+            {
+                if (!RemoveAccount(RemoveEOM(content)))
+                {
+                    Console.WriteLine("Sometin wong");
+                }
+                else
+                {
+                    UpdateUser(content);
+                }
+            }
+        }
+
+        private static bool RemoveAccount(string content)
+        {
+            string[] cA = content.Split(',');
+            if(AccountManager.RemoveAccount(cA[1], cA[2]))
+            {
+                return true;
+            }
+            return false;
+
         }
 
         public static void UpdateUser(string content)

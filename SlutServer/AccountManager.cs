@@ -76,14 +76,26 @@ namespace SlutServer
             }
         }
 
+        private static XElement GetAccount(string accountId, string personId, XDocument fileDoc)
+        {
+            XElement person = fileDoc.Descendants("person").Single(e => ((string)e.Attribute("id") == personId));
+            XElement accounts = person.Element("accounts");
+            XElement account = accounts.Elements("account").Single(e => (string)e.Attribute("id") == accountId);
+            return account;
+        }
+
         public static bool ReduceMoney(string personId, string accountId, string amount)
         {
             try
             {
-                XDocument fileDoc = XDocument.Load(accountPath);
+                /*XDocument fileDoc = XDocument.Load(accountPath);
                 XElement person = fileDoc.Descendants("person").Single(e => ((string)e.Attribute("id") == personId));
                 XElement accounts = person.Element("accounts");
-                XElement account = accounts.Elements("account").Single(e => (string)e.Attribute("id") == accountId);
+                XElement account = accounts.Elements("account").Single(e => (string)e.Attribute("id") == accountId);*/
+
+
+                XDocument fileDoc = XDocument.Load(accountPath);
+                XElement account = GetAccount(accountId, personId, fileDoc);
 
                 double startBalance = double.Parse(account.Element("balance").Value);
 
@@ -109,9 +121,25 @@ namespace SlutServer
             }
         }
 
-        public static string RemoveAccount(int personId, int accountId)
+        public static bool RemoveAccount(string personId, string accountId)
         {
-            return "Failed";
+            try
+            {
+
+
+
+                XDocument fileDoc = XDocument.Load(accountPath);
+                XElement account = GetAccount(accountId, personId, fileDoc);
+                account.Remove();
+                fileDoc.Save(accountPath);
+                return true;
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
     }
 }
