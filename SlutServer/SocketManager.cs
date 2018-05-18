@@ -13,41 +13,36 @@ namespace SlutServer
     class SocketManager
     {
 
-        // Incoming data from the client.  
         static Socket handler;
         public static string data = null;
 
         public static void StartListening()
         {
-            // Data buffer for incoming data.  
+            ´//Buffert
             byte[] bytes = new Byte[1024];
 
-            // Establish the local endpoint for the socket.  
-            // Dns.GetHostName returns the name of the   
-            // host running the application.  
+            // Simpelt sätt att få samma adress på både client och server
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[0];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 25565);
 
-            // Create a TCP/IP socket.  
+            // Skapa en TCP socket för att lyssna  
             Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            // Bind the socket to the local endpoint and   
-            // listen for incoming connections.  
             try
             {
                 listener.Bind(localEndPoint);
                 listener.Listen(10);
 
-                // Start listening for connections.  
+                // Börja lyssna
                 while (true)
                 {
                     Console.WriteLine("Waiting for a connection...");
-                    // Program is suspended while waiting for an incoming connection.  
+                    // Eftersom att handler väntar på en connection kommer programmet att blockeras fram till att någon ansluter. 
                     handler = listener.Accept();
                     data = null;
 
-                    // An incoming connection needs to be processed.  
+                    // Om den passerar föregående block kommer den att handera datan som skickades. 
                     while (true)
                     {
                         int bytesRec = handler.Receive(bytes);
@@ -58,11 +53,12 @@ namespace SlutServer
                         }
                     }
 
-                    // Show the data on the console. 
 
+
+                    //Hantera datan som togs emot från klienten
                     DataHandler(handler, data);
 
-                    // Echo the data back to the client
+                    // Stäng socket
                     handler.Shutdown(SocketShutdown.Both);
                     handler.Close();
                 }
@@ -79,11 +75,11 @@ namespace SlutServer
         }
         private static void DataHandler(Socket handler, string content)
         {
-            using (StreamWriter file = new StreamWriter(@"datalog.txt", true))
-            {
-                file.WriteLine(content);
-            }
-
+            /*
+                Hanteringen av datan sker genom en hel del if-satser som använder sig av IndexOf för att se vilken
+                typ av data som skickades via TCP.
+                Datan är separerad med komman [,] och börjar alltid med request type. Tex "reg" vid registrering
+            */
             if (content.IndexOf("reg") > -1)
             {
                 RegisterPerson(content);
@@ -94,7 +90,6 @@ namespace SlutServer
             }
             else if (content.IndexOf("init_user_data") > -1)
             {
-                Console.WriteLine("|DATA| init_user_data");
                 UpdateUser(content);
             }
             else if(content.IndexOf("new_account") > -1)
@@ -107,6 +102,7 @@ namespace SlutServer
             }
             else if(content.IndexOf("remove_account") > -1)
             {
+                //Används för debugging. Kan tas bort
                 if (!RemoveAccount(RemoveEOM(content)))
                 {
                     Console.WriteLine("Sometin wong");
@@ -118,8 +114,10 @@ namespace SlutServer
             }
         }
 
+
         private static bool RemoveAccount(string content)
         {
+            //Separerar meddelandet in i dess informations delar.
             string[] cA = content.Split(',');
             if(AccountManager.RemoveAccount(cA[1], cA[2]))
             {
